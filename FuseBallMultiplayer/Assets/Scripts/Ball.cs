@@ -41,8 +41,27 @@ public class Ball : NetworkBehaviour
     {
         IsActive = isActive;
     }
+
+    public void SetActiveLocal(bool isActive)
+    {
+        _spriteRenderer.enabled = isActive;
+        _collider.enabled = isActive;
+        _trail.enabled = isActive;
+        _body.linearVelocity = Vector2.zero;
+    }
+
+    public void ResetBall()
+    {
+        StartCoroutine(_resetBall());
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void UpdateBallMovementRPC(Vector3 newVel)
+    {
+       _body.linearVelocity = newVel;
+    }
     
-    IEnumerator ResetBall()
+    IEnumerator _resetBall()
     {
         IsActive = false;
 
@@ -82,12 +101,6 @@ public class Ball : NetworkBehaviour
 
         IsActive = true;
     }
-
-    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void _shakeCameraRPC()
-    {
-        Camera.main.transform.DOShakePosition(0.4f, 1f, 8, 90);
-    }
     
     private void _onActiveChanged()
     {
@@ -97,19 +110,13 @@ public class Ball : NetworkBehaviour
         _body.linearVelocity = Vector2.zero;
     }
 
-    private void OnCollisionEnter2D(Collision2D other)
+    /*private void OnCollisionEnter2D(Collision2D other)
     {
-        if (!HasStateAuthority)
-        {
-            return;
-        }
-
         var player = other.gameObject.GetComponent<Player>();
 
-        if (player != null)
+        if (player != null && player.HasStateAuthority)
         {
-            _shakeCameraRPC();
-            StartCoroutine(ResetBall()); 
+            _onPlayerHitRPC();
         }
-    }
+    }*/
 }

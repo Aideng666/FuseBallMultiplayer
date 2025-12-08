@@ -12,7 +12,7 @@ public class NetworkManager : SimulationBehaviour, IPlayerJoined
     {
         if (player == Runner.LocalPlayer)
         {
-            Runner.Spawn(playerPrefab, new Vector3(0, 0, 0), Quaternion.identity);
+            Runner.Spawn(playerPrefab, new Vector3(0, 35, 0), Quaternion.identity, player);
         }
     }
 }

@@ -211,8 +211,12 @@ MonoBehaviour:
   knockbackStunLength: 0.5
   dodgeDuration: 0.25
   dodgeForce: 10
-  fuseDuration: 60
+  startingFuseDuration: 60
   dodgeFuseDepletionAmount: 1
+  _NetworkedLayer: 
+  _TrailActive: 0
+  _IsDead: 0
+  _CurrentFuseDuration: 0
 --- !u!50 &3344104183906437026
 Rigidbody2D:
   serializedVersion: 5

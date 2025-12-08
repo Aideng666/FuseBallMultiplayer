@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using Fusion;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -17,16 +16,29 @@ public class Player : NetworkBehaviour
     [SerializeField] private float knockbackStunLength;
     [SerializeField] private float dodgeDuration;
     [SerializeField] private float dodgeForce;
-    [SerializeField] private float fuseDuration;
+    [SerializeField] private float startingFuseDuration;
     [SerializeField] private float dodgeFuseDepletionAmount;
     
     public static event Action<Player> OnPlayerJoined;
+    public event Action<bool> OnPlayerReady;
     
     [Networked, OnChangedRender(nameof(_onLayerChanged))]
     public string NetworkedLayer { get; set; }
     
     [Networked, OnChangedRender(nameof(_onTrailChanged))]
     public bool TrailActive { get; set; }
+
+    [Networked, OnChangedRender(nameof(_onDeadChanged))]
+    public bool IsDead { get; set; } = false;
+    
+    [Networked, OnChangedRender(nameof(_onReadyChanged))]
+    public bool IsReady { get; set; } = false;
+    
+    [Networked, OnChangedRender(nameof(_onFuseChanged))]
+    public float CurrentFuseDuration { get; set; }
+    
+    [Networked]
+    public NetworkButtons ButtonsPrevious { get; set; }
     
     private Rigidbody2D _body;
     private Collider2D _collider;
@@ -44,6 +56,8 @@ public class Player : NetworkBehaviour
     private bool _dodgeActive = false;
     private bool _isDead;
     private bool _gameStarted = false;
+    private bool _gameSetupComplete = false;
+    private float _currentFuseDuration;
     
     public override void Spawned()
     {
@@ -62,23 +76,42 @@ public class Player : NetworkBehaviour
 
     public override void FixedUpdateNetwork()
     {
-        if (!HasStateAuthority || !_gameStarted)
+        if (!HasStateAuthority || IsDead)
         {
             return;
         }
         
-        InputSystem.Update();
+        if (!GetInput<NetworkInputData>(out var input))
+        {
+            return;
+        }
+        
+        var pressedButtons = input.Buttons.GetPressed(ButtonsPrevious);
+
+        //print($"Setup Complete: {_gameSetupComplete} Game Started: {_gameStarted} Button Pressed: {pressedButtons.IsSet(NetworkInputButtons.Strike)}");
+        
+        if (_gameSetupComplete && pressedButtons.IsSet(NetworkInputButtons.Strike) && !_gameStarted)
+        {
+            IsReady = !IsReady;
+        }
+        
+        ButtonsPrevious = input.Buttons;
+        
+        if (!_gameStarted)
+        {
+            return;
+        }
 
         if (!_knockbackActive && !_dodgeActive)
         {
-            _movePlayer();
+            _movePlayer(input);
 
-            if (_canStrike())
+            if (_canStrike() && pressedButtons.IsSet(NetworkInputButtons.Strike))
             {
                 _handleStrike();
             }
 
-            if (_canDodge())
+            if (_canDodge() && pressedButtons.IsSet(NetworkInputButtons.Dodge))
             {
                 _handleDodge();
             }
@@ -88,7 +121,7 @@ public class Player : NetworkBehaviour
         {
             _elapsedStrikeDelay += Runner.DeltaTime;
         }
-        
+
         if (_elapsedDodgeDelay < dodgeDelay)
         {
             _elapsedDodgeDelay += Runner.DeltaTime;
@@ -104,7 +137,7 @@ public class Player : NetworkBehaviour
                 _elapsedKnockbackTime = 0;
             }
         }
-        
+
         if (_dodgeActive && _elapsedDodgeTime < dodgeDuration)
         {
             _elapsedDodgeTime += Runner.DeltaTime;
@@ -117,12 +150,38 @@ public class Player : NetworkBehaviour
                 TrailActive = false;
             }
         }
-    }
-    
 
-    private void _movePlayer()
+        if (CurrentFuseDuration <= 0)
+        {
+            IsDead = true;
+        }
+
+        CurrentFuseDuration -= Runner.DeltaTime;
+    }
+
+
+    private void _movePlayer(NetworkInputData input)
     {
-        var moveDirection = InputManager.Instance.GetMoveInput().normalized;
+        var moveDirection = input.MoveDirection.normalized;
+
+        /*if (input.Buttons.IsSet(NetworkInputButtons.Up))
+        {
+            moveDirection.y += 1;
+        }
+        if (input.Buttons.IsSet(NetworkInputButtons.Down))
+        {
+            moveDirection.y -= 1;
+        }
+        if (input.Buttons.IsSet(NetworkInputButtons.Left))
+        {
+            moveDirection.x -= 1;
+        }
+        if (input.Buttons.IsSet(NetworkInputButtons.Right))
+        {
+            moveDirection.x += 1;
+        }*/
+
+        //moveDirection = moveDirection.normalized;
 
         _body.linearVelocity = moveDirection * moveSpeed;
         
@@ -163,6 +222,79 @@ public class Player : NetworkBehaviour
         }
     }
     
+    private void _handleStrike()
+    {
+        if (_canStrike())
+        {
+            _showStrikeVisualsRPC();
+            
+            Collider2D[] collidersHit = Physics2D.OverlapCircleAll(transform.position, strikeRange);
+
+            foreach (var collider in collidersHit)
+            {
+                var ball = collider.GetComponent<Ball>();
+                var player = collider.GetComponentInParent<Player>();
+
+                if (ball != null)
+                {
+                    Vector2 strikeDirection = (ball.transform.position - transform.position).normalized;
+
+                    /*if (powerStrike)
+                    {
+                        ball.GetComponent<Rigidbody2D>().linearVelocity = strikeDirection * (minStrikeSpeed * 50);
+                        powerStrike = false;
+                    }*/
+
+                    if (ball.HasStateAuthority)
+                    {
+                       ball.GetComponent<Rigidbody2D>().linearVelocity = strikeDirection * Mathf.Max(minStrikeSpeed, ball.GetComponent<Ball>().CurrentSpeed);
+                    }
+                    else
+                    {
+                        ball.UpdateBallMovementRPC(strikeDirection * Mathf.Max(minStrikeSpeed, ball.GetComponent<Ball>().CurrentSpeed));
+                    }
+                }
+
+                if (player != null)
+                {
+                    if (player == this)
+                    {
+                        continue;
+                    }
+                    
+                    Vector2 knockbackDirection = (player.transform.position - transform.position).normalized;
+                    player.ApplyKnockbackLocal(knockbackDirection, strikeKnockbackPower);
+                    player.ApplyKnockbackRPC(knockbackDirection, strikeKnockbackPower);
+                }
+            }
+
+            _elapsedStrikeDelay = 0;
+        }
+    }
+
+    private void _handleDodge()
+    {
+        if (_canDodge())
+        {
+            _dodgeActive = true;
+            TrailActive = true;
+
+            NetworkedLayer = "Intangible";
+            
+            Vector2 dodgeDirection = (_body.linearVelocity).normalized;
+
+            if (dodgeDirection.magnitude == 0)
+            {
+                dodgeDirection = new Vector2(0, -1);
+            }
+            
+            _modifyFuseDuration(-dodgeFuseDepletionAmount);
+            _body.AddForce(dodgeDirection * dodgeForce, ForceMode2D.Impulse);
+            
+            _elapsedDodgeDelay = 0;
+        }
+    }
+    
     public void ApplyKnockbackLocal(Vector2 direction, float power)
     {
         _knockbackActive = true;
@@ -191,6 +323,15 @@ public class Player : NetworkBehaviour
     public void SetGameStartedRPC(bool started)
     {
         _gameStarted = started;
+        IsDead = false;
+        
+        CurrentFuseDuration = startingFuseDuration;
+    }
+    
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void SetGameSetupCompleteRPC(bool setupComplete)
+    {
+        _gameSetupComplete = setupComplete;
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -219,91 +360,24 @@ public class Player : NetworkBehaviour
         playerVisuals.transform.DOPunchScale(new Vector3(0.75f, 0.75f, 0.75f), 0.4f, 1);
         _strikeParticles.Play();
     }
-    
-    /*[Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    private void _showKnockbackVisualsRPC(float xVelocity)
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void _onBallHitPlayerRPC(Ball ball)
     {
-        playerVisuals.transform.DOKill();
-        playerVisuals.transform.rotation = Quaternion.identity;
-        
-        if (xVelocity > 0)
-        {
-            playerVisuals.transform.DOPunchRotation(new Vector3(0, 0, -60), knockbackStunLength, 4);
-        }
-        else if (xVelocity < 0)
-        {
-            playerVisuals.transform.DOPunchRotation(new Vector3(0, 0, 60), knockbackStunLength, 4);
-        }
-    }*/
+        print("RPC Reset");
+        ball.ResetBall();
+    }
+
+    private void _onBallHitPlayerLocal(Ball ball)
+    {
+        print("Local Reset");
+        ball.SetActiveLocal(false);
+        ball.ResetBall();
+    }
     
     private void _modifyFuseDuration(float amount)
     {
-        fuseDuration += amount;
-    }
-
-    private void _handleStrike()
-    {
-        if (InputManager.Instance.StrikePressed() && _canStrike())
-        {
-            _showStrikeVisualsRPC();
-            
-            Collider2D[] collidersHit = Physics2D.OverlapCircleAll(transform.position, strikeRange);
-
-            foreach (var collider in collidersHit)
-            {
-                var ball = collider.GetComponent<Ball>();
-                var player = collider.GetComponentInParent<Player>();
-
-                if (ball != null)
-                {
-                    Vector2 strikeDirection = (ball.transform.position - transform.position).normalized;
-
-                    /*if (powerStrike)
-                    {
-                        ball.GetComponent<Rigidbody2D>().linearVelocity = strikeDirection * (minStrikeSpeed * 50);
-                        powerStrike = false;
-                    }*/
-                    
-                    ball.GetComponent<Rigidbody2D>().linearVelocity = strikeDirection * Mathf.Max(minStrikeSpeed, ball.GetComponent<Ball>().CurrentSpeed);
-                }
-
-                if (player != null)
-                {
-                    if (player == this)
-                    {
-                        continue;
-                    }
-                    
-                    Vector2 knockbackDirection = (player.transform.position - transform.position).normalized;
-                    player.ApplyKnockbackLocal(knockbackDirection, strikeKnockbackPower);
-                    player.ApplyKnockbackRPC(knockbackDirection, strikeKnockbackPower);
-                }
-            }
-
-            _elapsedStrikeDelay = 0;
-        }
-    }
-
-    private void _handleDodge()
-    {
-        if (InputManager.Instance.DodgePressed() && _canDodge())
-        {
-            _dodgeActive = true;
-            TrailActive = true;
-
-            NetworkedLayer = "Intangible";
-            
-            Vector2 dodgeDirection = (_body.linearVelocity).normalized;
-
-            if (dodgeDirection.magnitude == 0)
-            {
-                dodgeDirection = new Vector2(0, -1);
-            }
-            
-            _body.AddForce(dodgeDirection * dodgeForce, ForceMode2D.Impulse);
-            
-            _elapsedDodgeDelay = 0;
-        }
+        CurrentFuseDuration += amount;
     }
 
     private void _onLayerChanged()
@@ -315,6 +389,27 @@ public class Player : NetworkBehaviour
     private void _onTrailChanged()
     {
         _dodgeTrail.enabled = TrailActive;
+    }
+    
+    private void _onDeadChanged()
+    {
+        if (IsDead)
+        {
+            _networkAnim.SetTrigger("Death");
+        }
+    }
+
+    private void _onReadyChanged()
+    {
+        if (Runner.IsSharedModeMasterClient)
+        {
+            OnPlayerReady?.Invoke(IsReady);
+        }
+    }
+    
+    private void _onFuseChanged()
+    {
+        //TODO: UI Updates here?
     }
     
     private bool _canStrike()
@@ -348,7 +443,10 @@ public class Player : NetworkBehaviour
 
         if (ball != null)
         {
+            Camera.main.transform.DOShakePosition(0.4f, 1f, 8, 90);
             _modifyFuseDuration(-ball.FuseDamage);
+            _onBallHitPlayerLocal(ball);
+            _onBallHitPlayerRPC(ball);
         }
     }
 

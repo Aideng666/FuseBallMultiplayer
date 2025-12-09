@@ -34,7 +34,7 @@ public class Player : NetworkBehaviour
     [Networked, OnChangedRender(nameof(_onReadyChanged))]
     public bool IsReady { get; set; } = false;
     
-    [Networked, OnChangedRender(nameof(_onFuseChanged))]
+    [Networked]
     public float CurrentFuseDuration { get; set; }
     
     [Networked]
@@ -57,7 +57,6 @@ public class Player : NetworkBehaviour
     private bool _isDead;
     private bool _gameStarted = false;
     private bool _gameSetupComplete = false;
-    private float _currentFuseDuration;
     
     public override void Spawned()
     {
@@ -87,8 +86,6 @@ public class Player : NetworkBehaviour
         }
         
         var pressedButtons = input.Buttons.GetPressed(ButtonsPrevious);
-
-        //print($"Setup Complete: {_gameSetupComplete} Game Started: {_gameStarted} Button Pressed: {pressedButtons.IsSet(NetworkInputButtons.Strike)}");
         
         if (_gameSetupComplete && pressedButtons.IsSet(NetworkInputButtons.Strike) && !_gameStarted)
         {
@@ -164,25 +161,6 @@ public class Player : NetworkBehaviour
     {
         var moveDirection = input.MoveDirection.normalized;
 
-        /*if (input.Buttons.IsSet(NetworkInputButtons.Up))
-        {
-            moveDirection.y += 1;
-        }
-        if (input.Buttons.IsSet(NetworkInputButtons.Down))
-        {
-            moveDirection.y -= 1;
-        }
-        if (input.Buttons.IsSet(NetworkInputButtons.Left))
-        {
-            moveDirection.x -= 1;
-        }
-        if (input.Buttons.IsSet(NetworkInputButtons.Right))
-        {
-            moveDirection.x += 1;
-        }*/
-
-        //moveDirection = moveDirection.normalized;
-
         _body.linearVelocity = moveDirection * moveSpeed;
         
         if (_body.linearVelocity.x > 0)
@@ -238,6 +216,7 @@ public class Player : NetworkBehaviour
                 if (ball != null)
                 {
                     Vector2 strikeDirection = (ball.transform.position - transform.position).normalized;
+                    var velocity = strikeDirection * Mathf.Max(minStrikeSpeed, ball.GetComponent<Ball>().CurrentSpeed);
 
                     /*if (powerStrike)
                     {
@@ -247,11 +226,12 @@ public class Player : NetworkBehaviour
 
                     if (ball.HasStateAuthority)
                     {
-                       ball.GetComponent<Rigidbody2D>().linearVelocity = strikeDirection * Mathf.Max(minStrikeSpeed, ball.GetComponent<Ball>().CurrentSpeed);
+                        ball.GetComponent<Rigidbody2D>().linearVelocity = velocity;
                     }
                     else
                     {
-                        ball.UpdateBallMovementRPC(strikeDirection * Mathf.Max(minStrikeSpeed, ball.GetComponent<Ball>().CurrentSpeed));
+                        ball.PredictBallMovementLocal(velocity, Runner.Tick);
+                        ball.UpdateBallMovementRPC(velocity, Runner.Tick);
                     }
                 }
 
@@ -405,11 +385,6 @@ public class Player : NetworkBehaviour
         {
             OnPlayerReady?.Invoke(IsReady);
         }
-    }
-    
-    private void _onFuseChanged()
-    {
-        //TODO: UI Updates here?
     }
     
     private bool _canStrike()

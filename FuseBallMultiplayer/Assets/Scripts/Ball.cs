@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using DG.Tweening;
 using Fusion;
+using Fusion.Addons.Physics;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -15,15 +16,22 @@ public class Ball : NetworkBehaviour
     
     [Networked, OnChangedRender(nameof(_onActiveChanged))]
     public bool IsActive { get; set; }
+    
+    [Networked, OnChangedRender(nameof(_onStrikeProcessed))]
+    public int LastProcessedStrikeTick { get; set; }
 
     private Rigidbody2D _body;
+    private NetworkRigidbody2D _networkBody;
     private SpriteRenderer _spriteRenderer;
     private CircleCollider2D _collider;
     private TrailRenderer _trail;
     
+    private int _localPredictionTick = -1;
+    
     public override void Spawned()
     {
         _body = GetComponent<Rigidbody2D>();
+        _networkBody = GetComponent<NetworkRigidbody2D>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _collider = GetComponent<CircleCollider2D>();
         _trail = GetComponentInChildren<TrailRenderer>();
@@ -35,6 +43,13 @@ public class Ball : NetworkBehaviour
         {
             _body.linearVelocity = _body.linearVelocity.normalized * maxSpeed;
         }
+    }
+
+    public void PredictBallMovementLocal(Vector2 velocity, int currentTick)
+    {
+        _localPredictionTick = currentTick;
+        _networkBody.enabled = false;
+        _body.linearVelocity = velocity;
     }
 
     public void SetActive(bool isActive)
@@ -56,9 +71,12 @@ public class Ball : NetworkBehaviour
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    public void UpdateBallMovementRPC(Vector3 newVel)
+    public void UpdateBallMovementRPC(Vector3 newVel, int tickID)
     {
-       _body.linearVelocity = newVel;
+        _networkBody.enabled = true;
+        
+        _body.linearVelocity = newVel;
+        LastProcessedStrikeTick = tickID;
     }
     
     IEnumerator _resetBall()
@@ -110,13 +128,13 @@ public class Ball : NetworkBehaviour
         _body.linearVelocity = Vector2.zero;
     }
 
-    /*private void OnCollisionEnter2D(Collision2D other)
+    private void _onStrikeProcessed()
     {
-        var player = other.gameObject.GetComponent<Player>();
-
-        if (player != null && player.HasStateAuthority)
+        if (_localPredictionTick != -1 && LastProcessedStrikeTick == _localPredictionTick)
         {
-            _onPlayerHitRPC();
+            _networkBody.enabled = true;
+            
+            _localPredictionTick = -1;
         }
-    }*/
+    }
 }

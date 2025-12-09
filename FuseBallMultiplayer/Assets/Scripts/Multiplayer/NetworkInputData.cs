@@ -9,10 +9,6 @@ public struct NetworkInputData : INetworkInput
 
 enum NetworkInputButtons
 {
-    Up = 0,
-    Down = 1,
-    Left = 2,
-    Right = 3,
-    Strike = 4,
-    Dodge = 5
+    Strike = 0,
+    Dodge = 1
 }

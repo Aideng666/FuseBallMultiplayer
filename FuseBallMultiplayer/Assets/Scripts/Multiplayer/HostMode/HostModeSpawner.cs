@@ -25,6 +25,7 @@ public class HostModeSpawner : MonoBehaviour, INetworkRunnerCallbacks
     private InputAction dodgeAction;
 
     private int _numPlayersReady;
+    private bool _gameStarted;
     
     private void Awake()
     {
@@ -42,6 +43,14 @@ public class HostModeSpawner : MonoBehaviour, INetworkRunnerCallbacks
         
         Player_HostMode.OnPlayerSpawned -= _onPlayerSpawned;
         Player_HostMode.OnPlayerDespawned -= _onPlayerDespawned;
+    }
+
+    private void Update()
+    {
+        if (_gameStarted)
+        {
+            hud.UpdateFuses(_players[0], _players[1]);
+        }
     }
 
     async void StartLobby(GameMode mode, string sessionName)
@@ -131,6 +140,8 @@ public class HostModeSpawner : MonoBehaviour, INetworkRunnerCallbacks
                 player.SetGameStarted(true);
             }
         }
+
+        _gameStarted = true;
     }
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)

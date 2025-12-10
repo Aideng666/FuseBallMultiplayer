@@ -63,7 +63,7 @@ public class HUDController : MonoBehaviour
         readyText.text = $"{numPlayersReady} / 2 Ready";
     }
 
-    public void UpdateFuses(Player player1, Player player2)
+    public void UpdateFuses(Player_HostMode player1, Player_HostMode player2)
     {
         var maxFuse = 60f;
 

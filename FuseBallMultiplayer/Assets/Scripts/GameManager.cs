@@ -69,10 +69,10 @@ public class GameManager : NetworkBehaviour
 
     private void Update()
     {
-        if (_gameStarted)
+        /*if (_gameStarted)
         {
             hud.UpdateFuses(Player1, Player2);
-        }
+        }*/
     }
 
     private void _startGame()

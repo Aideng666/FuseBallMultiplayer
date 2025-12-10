@@ -244,6 +244,16 @@ MonoBehaviour:
   dodgeForce: 10
   startingFuseDuration: 60
   dodgeFuseDepletionAmount: 1
+  _IsReady: 0
+  _GameSetupComplete: 0
+  _GameStarted: 0
+  _NetworkedLayer: 
+  _TrailActive: 0
+  _IsDead: 0
+  _StrikeVisualCount: 0
+  _KnockbackVisualCount: 0
+  _KnockbackXDirection: 0
+  _CurrentFuseDuration: 0
 --- !u!50 &3344104183906437026
 Rigidbody2D:
   serializedVersion: 5
@@ -308,7 +318,7 @@ MonoBehaviour:
   _stateAuthorityChangeErrorCorrectionDelta: 0
   SyncScale: 0
   SyncParent: 1
-  _interpolationTarget: {fileID: 6497634591244396177}
+  _interpolationTarget: {fileID: 0}
   UsePreciseRotation: 0
   UseRenderSleepThresholds: 1
   RenderThresholds:

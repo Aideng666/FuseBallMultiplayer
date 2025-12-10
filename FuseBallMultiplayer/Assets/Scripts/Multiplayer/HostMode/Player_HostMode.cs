@@ -25,8 +25,9 @@ public class Player_HostMode : NetworkBehaviour
     [Networked] public string NetworkedLayer { get; set; }
     [Networked] public bool TrailActive { get; set; }
     [Networked] public bool IsDead { get; set; } = false;
-    [Networked] public bool StrikeVisualsActive { get; set; } = false;
-    [Networked] public int KnockbackVisualDirection { get; set; }
+    [Networked] public byte StrikeVisualCount { get; set; }
+    [Networked] public byte KnockbackVisualCount { get; set; }
+    [Networked] public int KnockbackXDirection { get; set; }
     [Networked] public float CurrentFuseDuration { get; set; }
 
     public static event Action<Player_HostMode> OnPlayerSpawned;
@@ -47,7 +48,9 @@ public class Player_HostMode : NetworkBehaviour
     private float _elapsedKnockbackTime = 0;
     private float _elapsedDodgeTime = 0;
     private bool _knockbackActive = false;
+    private bool _knockbackVisualsActive = false;
     private bool _dodgeActive = false;
+    private bool _isStriking = false;
     private bool _isDead;
 
     public override void Spawned()
@@ -90,17 +93,20 @@ public class Player_HostMode : NetworkBehaviour
         {
             return;
         }
-        
-        _movePlayer(input);
 
-        if (_canStrike() && pressedButtons.IsSet(NetworkInputButtons.Strike))
+        if (!_knockbackActive && !_dodgeActive)
         {
-            _handleStrike();
-        }
+            _movePlayer(input);
 
-        if (_canDodge() && pressedButtons.IsSet(NetworkInputButtons.Dodge))
-        {
-            _handleDodge();
+            if (_canStrike() && pressedButtons.IsSet(NetworkInputButtons.Strike))
+            {
+                _handleStrike();
+            }
+
+            if (_canDodge() && pressedButtons.IsSet(NetworkInputButtons.Dodge))
+            {
+                _handleDodge();
+            }
         }
 
         if (_elapsedStrikeDelay < strikeDelay)
@@ -161,12 +167,14 @@ public class Player_HostMode : NetworkBehaviour
 
         if (direction.x > 0)
         {
-            KnockbackVisualDirection = 1;
+            KnockbackXDirection = 1;
         }
         else if (direction.x < 0)
         {
-            KnockbackVisualDirection = -1;
+            KnockbackXDirection = -1;
         }
+        
+        KnockbackVisualCount++;
     }
 
     private void _movePlayer(NetworkInputData input)
@@ -216,7 +224,7 @@ public class Player_HostMode : NetworkBehaviour
     {
         if (_canStrike())
         {
-            StrikeVisualsActive = true;
+            StrikeVisualCount++;
             
             Collider2D[] collidersHit = Physics2D.OverlapCircleAll(transform.position, strikeRange);
 
@@ -271,7 +279,7 @@ public class Player_HostMode : NetworkBehaviour
                 dodgeDirection = new Vector2(0, -1);
             }
             
-            _modifyFuseDuration(-dodgeFuseDepletionAmount);
+            ModifyFuseDuration(-dodgeFuseDepletionAmount);
             _body.AddForce(dodgeDirection * dodgeForce, ForceMode2D.Impulse);
             
             _elapsedDodgeDelay = 0;
@@ -298,7 +306,7 @@ public class Player_HostMode : NetworkBehaviour
         return false;
     }
     
-    private void _modifyFuseDuration(float amount)
+    public void ModifyFuseDuration(float amount)
     {
         CurrentFuseDuration += amount;
     }
@@ -337,49 +345,52 @@ public class Player_HostMode : NetworkBehaviour
 
                     break;
 
-                case nameof(StrikeVisualsActive):
+                case nameof(StrikeVisualCount):
 
-                    if (StrikeVisualsActive)
+                    if (!_isStriking)
                     {
-                        print("Playing Strike Visual");
+                        _isStriking = true;
                         playerVisuals.transform.DOKill();
                         playerVisuals.transform.localScale = _defaultScale;
 
-                        playerVisuals.transform.DOPunchScale(new Vector3(0.75f, 0.75f, 0.75f), 0.4f, 1);
+                        playerVisuals.transform.DOPunchScale(new Vector3(0.75f, 0.75f, 0.75f), 0.4f, 1).OnComplete(() =>
+                        {
+                            _isStriking = false;
+                        });
                         _strikeParticles.Play();
-
-                        StrikeVisualsActive = false;
                     }
 
                     break;
 
-                case nameof(KnockbackVisualDirection):
-
-                    if (KnockbackVisualDirection == 0)
-                    {
-                        return;
-                    }
+                case nameof(KnockbackVisualCount):
                     
-                    playerVisuals.transform.DOKill();
-                    playerVisuals.transform.rotation = Quaternion.identity;
+                    if (!_knockbackVisualsActive)
+                    {
+                        print("Applying Knockback Visuals");
+                        _knockbackVisualsActive = true;
+                        playerVisuals.transform.DOKill();
+                        playerVisuals.transform.rotation = Quaternion.identity;
 
-                    if (KnockbackVisualDirection > 0)
-                    {
-                        playerVisuals.transform.DOPunchRotation(new Vector3(0, 0, -60), knockbackStunLength, 4).OnComplete(
-                            () =>
-                            {
-                                KnockbackVisualDirection = 0;
-                            });
+                        if (KnockbackXDirection > 0)
+                        {
+                            print("Right");
+                            playerVisuals.transform.DOPunchRotation(new Vector3(0, 0, -60), knockbackStunLength, 4).OnComplete(
+                                () =>
+                                {
+                                    _knockbackVisualsActive = false;
+                                });
+                        }
+                        else if (KnockbackXDirection < 0)
+                        {
+                            print("Left");
+                            playerVisuals.transform.DOPunchRotation(new Vector3(0, 0, 60), knockbackStunLength, 4).OnComplete(
+                                () =>
+                                {
+                                    _knockbackVisualsActive = false;
+                                });
+                        }
                     }
-                    else if (KnockbackVisualDirection < 0)
-                    {
-                        playerVisuals.transform.DOPunchRotation(new Vector3(0, 0, 60), knockbackStunLength, 4).OnComplete(
-                            () =>
-                            {
-                                KnockbackVisualDirection = 0;
-                            });
-                    }
-                    
+
                     break;
             }
         }

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3920144892303337694}
   - component: {fileID: 1048612765835422727}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Trail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -161,7 +161,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6962738644791966154}
   - component: {fileID: 3826958781823346872}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: BallVisuals
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -255,7 +255,7 @@ GameObject:
   - component: {fileID: 2990095155027473825}
   - component: {fileID: 8268077670226068474}
   - component: {fileID: 7176376636224198441}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Ball_HostMode
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -399,3 +399,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Ball_HostMode
   maxSpeed: 24
   fuseDepletionAmount: 5
+  _IsActive: 0
+  _ResetBallPosition: 0

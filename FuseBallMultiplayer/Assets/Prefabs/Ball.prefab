@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9112503383103729174}
   - component: {fileID: 5507530642121532463}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Trail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -166,7 +166,7 @@ GameObject:
   - component: {fileID: 7467151583970000300}
   - component: {fileID: 7722683198511283121}
   - component: {fileID: 7365571738699677216}
-  m_Layer: 6
+  m_Layer: 7
   m_Name: Ball
   m_TagString: Ball
   m_Icon: {fileID: 0}
@@ -261,6 +261,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Ball
   maxSpeed: 24
   fuseDepletionAmount: 5
+  _IsActive: 0
+  _LastProcessedStrikeTick: 0
 --- !u!50 &7467151583970000303
 Rigidbody2D:
   serializedVersion: 5

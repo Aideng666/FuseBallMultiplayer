@@ -167,7 +167,7 @@ GameObject:
   - component: {fileID: 7032036273758774902}
   - component: {fileID: 4924522083415212246}
   m_Layer: 7
-  m_Name: Player
+  m_Name: Player2
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -244,6 +244,9 @@ MonoBehaviour:
   dodgeForce: 10
   startingFuseDuration: 60
   dodgeFuseDepletionAmount: 1
+  timePowerupAmount: 10
+  speedPowerupMultiplier: 1.4
+  speedPowerupDuration: 15
   _IsReady: 0
   _GameSetupComplete: 0
   _GameStarted: 0
@@ -254,6 +257,8 @@ MonoBehaviour:
   _KnockbackVisualCount: 0
   _KnockbackXDirection: 0
   _CurrentFuseDuration: 0
+  _PlayerNum: 0
+  _ResetPlayer: 0
 --- !u!50 &3344104183906437026
 Rigidbody2D:
   serializedVersion: 5
@@ -293,7 +298,7 @@ MonoBehaviour:
   m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObject
-  SortKey: 1398969281
+  SortKey: 2941617873
   ObjectInterest: 1
   Flags: 262145
   NestedObjects: []
@@ -443,7 +448,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -4230539390857206976, guid: 3ded18ddc38d9d74b82d4c24b866817d, type: 3}
+  m_Sprite: {fileID: -4726011943699623215, guid: 457d3c2df045beb40a8ed7959b74f06e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -464,7 +469,7 @@ Animator:
   m_GameObject: {fileID: 7801273898453338855}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 0ffa63dc7c8bd7b45827274d71b51fab, type: 2}
+  m_Controller: {fileID: 9100000, guid: 8944fd2f5a705de45a489afac255b2c0, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0

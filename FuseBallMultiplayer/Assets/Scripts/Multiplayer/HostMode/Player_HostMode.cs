@@ -1,6 +1,7 @@
 using System;
 using DG.Tweening;
 using Fusion;
+using Fusion.Addons.Physics;
 using UnityEngine;
 
 public class Player_HostMode : NetworkBehaviour
@@ -17,6 +18,9 @@ public class Player_HostMode : NetworkBehaviour
     [SerializeField] private float dodgeForce;
     [SerializeField] private float startingFuseDuration;
     [SerializeField] private float dodgeFuseDepletionAmount;
+    [SerializeField] private int timePowerupAmount;
+    [SerializeField] private float speedPowerupMultiplier;
+    [SerializeField] private float speedPowerupDuration;
     
     [Networked] public NetworkButtons ButtonsPrevious { get; set; }
     [Networked] public bool IsReady { get; set; }
@@ -29,20 +33,25 @@ public class Player_HostMode : NetworkBehaviour
     [Networked] public byte KnockbackVisualCount { get; set; }
     [Networked] public int KnockbackXDirection { get; set; }
     [Networked] public float CurrentFuseDuration { get; set; }
+    [Networked] public int PlayerNum { get; set; }
+    [Networked] public bool ResetPlayer { get; set; }
 
     public static event Action<Player_HostMode> OnPlayerSpawned;
     public static event Action<Player_HostMode> OnPlayerDespawned;
     
     public event Action<Player_HostMode> OnPlayerReadyChanged;
+    public event Action<Player_HostMode> OnPlayerDied;
 
     private ChangeDetector _changeDetector;
     private Rigidbody2D _body;
+    private NetworkRigidbody2D _networkBody;
     private Collider2D _collider;
     private TrailRenderer _dodgeTrail;
     private ParticleSystem _strikeParticles;
     private NetworkMecanimAnimator _networkAnim;
     
     private Vector3 _defaultScale;
+    private Vector3 _startingPosition;
     private float _elapsedStrikeDelay = 0;
     private float _elapsedDodgeDelay = 0;
     private float _elapsedKnockbackTime = 0;
@@ -53,9 +62,14 @@ public class Player_HostMode : NetworkBehaviour
     private bool _isStriking = false;
     private bool _isDead;
 
+    private bool _powerStrike;
+    private bool _speedUp;
+    private float _elapsedSpeedUpTime;
+
     public override void Spawned()
     {
         _body = GetComponent<Rigidbody2D>();
+        _networkBody = GetComponent<NetworkRigidbody2D>();
         _collider = GetComponent<Collider2D>();
         _dodgeTrail = GetComponentInChildren<TrailRenderer>();
         _strikeParticles = GetComponentInChildren<ParticleSystem>();
@@ -63,6 +77,7 @@ public class Player_HostMode : NetworkBehaviour
         _changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
         
         _defaultScale = playerVisuals.transform.localScale;
+        _startingPosition = transform.position;
 
         _dodgeTrail.enabled = false;
         
@@ -76,6 +91,14 @@ public class Player_HostMode : NetworkBehaviour
 
     public override void FixedUpdateNetwork()
     {
+        if (ResetPlayer)
+        {
+            _networkAnim.SetTrigger("Restart");
+            _networkBody.Teleport(_startingPosition, Quaternion.identity);
+            IsReady = false;
+            ResetPlayer = false;
+        }
+        
         if (!GetInput<NetworkInputData>(out var input))
         {
             return;
@@ -92,6 +115,18 @@ public class Player_HostMode : NetworkBehaviour
         if (!GameStarted)
         {
             return;
+        }
+
+        if (_speedUp)
+        {
+            if (_elapsedSpeedUpTime >= speedPowerupDuration)
+            {
+                _speedUp = false;
+            }
+            else
+            {
+                _elapsedSpeedUpTime += Runner.DeltaTime;
+            }
         }
 
         if (!_knockbackActive && !_dodgeActive)
@@ -182,6 +217,11 @@ public class Player_HostMode : NetworkBehaviour
         var moveDirection = input.MoveDirection.normalized;
 
         _body.linearVelocity = moveDirection * moveSpeed;
+
+        if (_speedUp)
+        {
+            _body.linearVelocity *= speedPowerupMultiplier;
+        }
         
         if (_body.linearVelocity.x > 0)
         {
@@ -238,13 +278,15 @@ public class Player_HostMode : NetworkBehaviour
                     Vector2 strikeDirection = (ball.transform.position - transform.position).normalized;
                     var velocity = strikeDirection * Mathf.Max(minStrikeSpeed, ball.GetComponent<Ball_HostMode>().CurrentSpeed);
 
-                    /*if (powerStrike)
+                    if (_powerStrike)
                     {
-                        ball.GetComponent<Rigidbody2D>().linearVelocity = strikeDirection * (minStrikeSpeed * 50);
-                        powerStrike = false;
-                    }*/
-                    
-                    ball.GetComponent<Rigidbody2D>().linearVelocity = velocity;
+                        ball.GetComponent<Rigidbody2D>().linearVelocity = velocity * 50;
+                        _powerStrike = false;
+                    }
+                    else
+                    {
+                        ball.GetComponent<Rigidbody2D>().linearVelocity = velocity;
+                    }
                 }
 
                 if (player != null)
@@ -318,7 +360,7 @@ public class Player_HostMode : NetworkBehaviour
             switch (change)
             {
                 case nameof(IsReady):
-
+                    
                     OnPlayerReadyChanged?.Invoke(this);
 
                     break;
@@ -340,7 +382,12 @@ public class Player_HostMode : NetworkBehaviour
 
                     if (IsDead)
                     {
+                        _networkAnim.Animator.SetBool("Right", false);
+                        _networkAnim.Animator.SetBool("Left", false);
+                        _networkAnim.Animator.SetBool("Up", false);
+                        _networkAnim.Animator.SetBool("Down", false);
                         _networkAnim.SetTrigger("Death");
+                        OnPlayerDied?.Invoke(this);
                     }
 
                     break;
@@ -366,14 +413,12 @@ public class Player_HostMode : NetworkBehaviour
                     
                     if (!_knockbackVisualsActive)
                     {
-                        print("Applying Knockback Visuals");
                         _knockbackVisualsActive = true;
                         playerVisuals.transform.DOKill();
                         playerVisuals.transform.rotation = Quaternion.identity;
 
                         if (KnockbackXDirection > 0)
                         {
-                            print("Right");
                             playerVisuals.transform.DOPunchRotation(new Vector3(0, 0, -60), knockbackStunLength, 4).OnComplete(
                                 () =>
                                 {
@@ -382,7 +427,6 @@ public class Player_HostMode : NetworkBehaviour
                         }
                         else if (KnockbackXDirection < 0)
                         {
-                            print("Left");
                             playerVisuals.transform.DOPunchRotation(new Vector3(0, 0, 60), knockbackStunLength, 4).OnComplete(
                                 () =>
                                 {
@@ -393,6 +437,31 @@ public class Player_HostMode : NetworkBehaviour
 
                     break;
             }
+        }
+    }
+
+    public void ApplyPowerup(PowerupType powerup)
+    {
+        print("Applying Powerup: " + powerup);
+        
+        switch (powerup)
+        {
+            case PowerupType.Strength:
+
+                _powerStrike = true;
+                
+                break;
+            case PowerupType.Speed:
+
+                _speedUp = true;
+                _elapsedSpeedUpTime = 0;
+                
+                break;
+            case PowerupType.Time:
+                
+                ModifyFuseDuration(timePowerupAmount);
+                
+                break;
         }
     }
 }

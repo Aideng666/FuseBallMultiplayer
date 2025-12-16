@@ -169,12 +169,12 @@ TextureImporter:
       name: Pickup_Effect_Spritesheet_0
       rect:
         serializedVersion: 2
-        x: 43
-        y: 236
-        width: 9
-        height: 9
+        x: 0
+        y: 192
+        width: 96
+        height: 96
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -191,12 +191,12 @@ TextureImporter:
       name: Pickup_Effect_Spritesheet_1
       rect:
         serializedVersion: 2
-        x: 138
-        y: 234
-        width: 12
-        height: 14
+        x: 96
+        y: 192
+        width: 96
+        height: 96
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -213,12 +213,12 @@ TextureImporter:
       name: Pickup_Effect_Spritesheet_2
       rect:
         serializedVersion: 2
-        x: 230
-        y: 231
-        width: 19
-        height: 19
+        x: 192
+        y: 192
+        width: 96
+        height: 96
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -235,12 +235,12 @@ TextureImporter:
       name: Pickup_Effect_Spritesheet_3
       rect:
         serializedVersion: 2
-        x: 149
-        y: 153
-        width: 10
-        height: 17
+        x: 0
+        y: 96
+        width: 96
+        height: 96
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -257,12 +257,12 @@ TextureImporter:
       name: Pickup_Effect_Spritesheet_4
       rect:
         serializedVersion: 2
-        x: 233
-        y: 157
-        width: 6
-        height: 11
+        x: 96
+        y: 96
+        width: 96
+        height: 96
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -279,12 +279,12 @@ TextureImporter:
       name: Pickup_Effect_Spritesheet_5
       rect:
         serializedVersion: 2
-        x: 250
-        y: 164
-        width: 7
-        height: 10
+        x: 192
+        y: 96
+        width: 96
+        height: 96
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -301,12 +301,12 @@ TextureImporter:
       name: Pickup_Effect_Spritesheet_6
       rect:
         serializedVersion: 2
-        x: 34
-        y: 131
-        width: 28
-        height: 28
+        x: 0
+        y: 0
+        width: 96
+        height: 96
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -319,363 +319,11 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
-    - serializedVersion: 2
-      name: Pickup_Effect_Spritesheet_7
-      rect:
-        serializedVersion: 2
-        x: 118
-        y: 145
-        width: 17
-        height: 14
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 07f775fb4de54cd00800000000000000
-      internalID: 992022085764611952
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Pickup_Effect_Spritesheet_8
-      rect:
-        serializedVersion: 2
-        x: 121
-        y: 121
-        width: 49
-        height: 42
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: b8f133589f3bbc7c0800000000000000
-      internalID: -4049945555626680437
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Pickup_Effect_Spritesheet_9
-      rect:
-        serializedVersion: 2
-        x: 211
-        y: 152
-        width: 10
-        height: 10
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: bb354170ffc4007e0800000000000000
-      internalID: -1801355192729054277
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Pickup_Effect_Spritesheet_10
-      rect:
-        serializedVersion: 2
-        x: 260
-        y: 146
-        width: 8
-        height: 8
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 39932f8251ac36fe0800000000000000
-      internalID: -1196890883720332909
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Pickup_Effect_Spritesheet_11
-      rect:
-        serializedVersion: 2
-        x: 127
-        y: 120
-        width: 13
-        height: 16
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 6b0114fccf6b97160800000000000000
-      internalID: 7023846290786160822
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Pickup_Effect_Spritesheet_12
-      rect:
-        serializedVersion: 2
-        x: 211
-        y: 134
-        width: 9
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: ff68c4f62e3e403a0800000000000000
-      internalID: -6699979783951055105
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Pickup_Effect_Spritesheet_13
-      rect:
-        serializedVersion: 2
-        x: 232
-        y: 136
-        width: 16
-        height: 15
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c47fd4276051f65b0800000000000000
-      internalID: -5373052712998013108
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Pickup_Effect_Spritesheet_14
-      rect:
-        serializedVersion: 2
-        x: 220
-        y: 116
-        width: 9
-        height: 11
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: e3f3eaada48d774b0800000000000000
-      internalID: -5442643808645923010
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Pickup_Effect_Spritesheet_15
-      rect:
-        serializedVersion: 2
-        x: 259
-        y: 126
-        width: 10
-        height: 8
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 378a6713182861320800000000000000
-      internalID: 2528351732207364211
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Pickup_Effect_Spritesheet_16
-      rect:
-        serializedVersion: 2
-        x: 242
-        y: 116
-        width: 7
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 25f4234002693c4d0800000000000000
-      internalID: -3115481452956725422
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Pickup_Effect_Spritesheet_17
-      rect:
-        serializedVersion: 2
-        x: 16
-        y: 53
-        width: 66
-        height: 30
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 677e14dae76266460800000000000000
-      internalID: 7234512176931792758
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Pickup_Effect_Spritesheet_18
-      rect:
-        serializedVersion: 2
-        x: 41
-        y: 43
-        width: 8
-        height: 9
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 119cb6ba9ffcbc180800000000000000
-      internalID: -9093946351314810607
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Pickup_Effect_Spritesheet_19
-      rect:
-        serializedVersion: 2
-        x: 14
-        y: 35
-        width: 6
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 316f7a4c5eb4e24e0800000000000000
-      internalID: -2004581333914356205
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Pickup_Effect_Spritesheet_20
-      rect:
-        serializedVersion: 2
-        x: 74
-        y: 26
-        width: 6
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 23da06204457b3c50800000000000000
-      internalID: 6646034610073414962
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Pickup_Effect_Spritesheet_21
-      rect:
-        serializedVersion: 2
-        x: 25
-        y: 15
-        width: 6
-        height: 7
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 890f8c586abb8f140800000000000000
-      internalID: 4753755730573062296
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Pickup_Effect_Spritesheet_22
-      rect:
-        serializedVersion: 2
-        x: 50
-        y: 15
-        width: 6
-        height: 6
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c4c6d829059217ba0800000000000000
-      internalID: -6093043394822706100
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 7d4f86a76ac043e49ba140c90b5461ba
     internalID: 0
     vertices: []
     indices: 
@@ -683,31 +331,17 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":96.0,"y":96.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       Pickup_Effect_Spritesheet_0: 5006702425907085958
       Pickup_Effect_Spritesheet_1: 1635044729272960029
-      Pickup_Effect_Spritesheet_10: -1196890883720332909
-      Pickup_Effect_Spritesheet_11: 7023846290786160822
-      Pickup_Effect_Spritesheet_12: -6699979783951055105
-      Pickup_Effect_Spritesheet_13: -5373052712998013108
-      Pickup_Effect_Spritesheet_14: -5442643808645923010
-      Pickup_Effect_Spritesheet_15: 2528351732207364211
-      Pickup_Effect_Spritesheet_16: -3115481452956725422
-      Pickup_Effect_Spritesheet_17: 7234512176931792758
-      Pickup_Effect_Spritesheet_18: -9093946351314810607
-      Pickup_Effect_Spritesheet_19: -2004581333914356205
       Pickup_Effect_Spritesheet_2: -1556928712231507597
-      Pickup_Effect_Spritesheet_20: 6646034610073414962
-      Pickup_Effect_Spritesheet_21: 4753755730573062296
-      Pickup_Effect_Spritesheet_22: -6093043394822706100
       Pickup_Effect_Spritesheet_3: -1387076040795279151
       Pickup_Effect_Spritesheet_4: -59658034191162214
       Pickup_Effect_Spritesheet_5: -3502951931450702406
       Pickup_Effect_Spritesheet_6: 9100936841541350532
-      Pickup_Effect_Spritesheet_7: 992022085764611952
-      Pickup_Effect_Spritesheet_8: -4049945555626680437
-      Pickup_Effect_Spritesheet_9: -1801355192729054277
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

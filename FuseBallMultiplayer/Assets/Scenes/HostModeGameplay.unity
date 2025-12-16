@@ -583,6 +583,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4975913702434176403, guid: 767b6257625812447b04f115546ba897, type: 3}
   m_PrefabInstance: {fileID: 303763045}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &329302154 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7176376636224198441, guid: 767b6257625812447b04f115546ba897, type: 3}
+  m_PrefabInstance: {fileID: 303763045}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73f9330a8434de84a8a8fe3c67cfd09f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Ball_HostMode
 --- !u!1 &478510754
 GameObject:
   m_ObjectHideFlags: 0
@@ -1184,6 +1195,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 305f08eae1ac4444aacbc6dfecb5820e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HUDController
+--- !u!114 &1651338958 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7176376636224198441, guid: 767b6257625812447b04f115546ba897, type: 3}
+  m_PrefabInstance: {fileID: 1028224506}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73f9330a8434de84a8a8fe3c67cfd09f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Ball_HostMode
 --- !u!1 &1757679193
 GameObject:
   m_ObjectHideFlags: 0
@@ -1229,10 +1251,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9322b13f9874926479259e8fd3519644, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HostModeSpawner
-  playerPrefab:
+  player1Prefab:
     RawGuidValue: 73652cff236b11047a2b29e3d9e8a5ed
+  player2Prefab:
+    RawGuidValue: fee61d3371920494ba7549436e67e418
+  powerupPrefab:
+    RawGuidValue: 14f0ff6707c84924cac465876b329857
   lobbyUI: {fileID: 1153489441}
   hud: {fileID: 1601647855}
+  balls:
+  - {fileID: 1651338958}
+  - {fileID: 329302154}
+  - {fileID: 1891438241}
+  powerupSpawnDelay: 5
 --- !u!114 &1757679197
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1263,6 +1294,17 @@ MonoBehaviour:
   m_DefaultActionMap: 
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!114 &1891438241 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7176376636224198441, guid: 767b6257625812447b04f115546ba897, type: 3}
+  m_PrefabInstance: {fileID: 1106548633}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73f9330a8434de84a8a8fe3c67cfd09f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Ball_HostMode
 --- !u!1 &2108004053
 GameObject:
   m_ObjectHideFlags: 0

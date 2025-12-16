@@ -11,6 +11,7 @@ public class HUDController : MonoBehaviour
     [SerializeField] private Image player2Spark;
     [SerializeField] private Image centerText;
     [SerializeField] private TMP_Text readyText;
+    [SerializeField] private TMP_Text gameOverReadyText;
     [SerializeField] private float startSparkHeight;
     [SerializeField] private float endSparkHeight;
     [SerializeField] private GameObject gameOverSection;
@@ -38,7 +39,9 @@ public class HUDController : MonoBehaviour
     {
         if (!_gameStarted)
         {
+            centerText.enabled = true;
             readyText.enabled = false;
+            gameOverSection.SetActive(false);
             _anim.SetTrigger("Start");
             _gameStarted = true;
         }
@@ -47,6 +50,8 @@ public class HUDController : MonoBehaviour
     public void ShowGameOver(int winner)
     {
         gameOverSection.SetActive(true);
+        _gameStarted = false;
+        UpdateReadyText(0);
 
         if (winner == 1)
         {
@@ -61,6 +66,7 @@ public class HUDController : MonoBehaviour
     public void UpdateReadyText(int numPlayersReady)
     {
         readyText.text = $"{numPlayersReady} / 2 Ready";
+        gameOverReadyText.text = $"{numPlayersReady} / 2 Ready";
     }
 
     public void UpdateFuses(Player_HostMode player1, Player_HostMode player2)

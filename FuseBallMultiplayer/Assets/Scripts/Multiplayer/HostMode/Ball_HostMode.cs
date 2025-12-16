@@ -10,6 +10,7 @@ public class Ball_HostMode : NetworkBehaviour
     [SerializeField] float fuseDepletionAmount = 5;
     
     [Networked] public bool IsActive { get; set; }
+    [Networked] public bool ResetBallPosition { get; set; }
     
     public float FuseDamage => fuseDepletionAmount;
     public float CurrentSpeed => _body.linearVelocity.magnitude;
@@ -20,6 +21,7 @@ public class Ball_HostMode : NetworkBehaviour
     private CircleCollider2D _collider;
     private TrailRenderer _trail;
     private ChangeDetector _changeDetector;
+    private Vector3 _startingPosition;
 
     private bool _ballResetting = false;
     
@@ -32,10 +34,19 @@ public class Ball_HostMode : NetworkBehaviour
         _trail = GetComponentInChildren<TrailRenderer>();
         _changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
         IsActive = true;
+
+        _startingPosition = transform.position;
     }
     
     public override void FixedUpdateNetwork()
     {
+        if (ResetBallPosition)
+        {
+            _body.linearVelocity = Vector2.zero;
+            _networkBody.Teleport(_startingPosition, Quaternion.identity);
+            ResetBallPosition = false;
+        }
+        
         if (_body.linearVelocity.magnitude >= maxSpeed)
         {
             _body.linearVelocity = _body.linearVelocity.normalized * maxSpeed;
@@ -49,8 +60,7 @@ public class Ball_HostMode : NetworkBehaviour
             switch (change)
             {
                 case nameof(IsActive):
-
-                    print("Detected IsActive Change. New Value: " + IsActive);
+                    
                     _spriteRenderer.enabled = IsActive;
                     _collider.enabled = IsActive;
                     _trail.enabled = IsActive;

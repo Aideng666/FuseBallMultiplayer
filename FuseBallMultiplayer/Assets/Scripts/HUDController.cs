@@ -86,5 +86,7 @@ public class HUDController : MonoBehaviour
         player2Spark.rectTransform.localPosition =
             new Vector3(player2Spark.rectTransform.localPosition.x,
                 Mathf.Lerp(startSparkHeight, endSparkHeight, player2FillPercentage), player2Spark.rectTransform.localPosition.z);
+        
+        print("Fuse HUD Updated");
     }
 }

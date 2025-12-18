@@ -10,7 +10,7 @@ public class Powerup : NetworkBehaviour
     [SerializeField] private Sprite strengthSprite;
     [SerializeField] private Sprite timeSprite;
 
-    public event Action OnPowerupPickedUp; 
+    public event Action<Powerup> OnPowerupPickedUp; 
     
     [Networked] public PowerupType PowerupType { get; set; }
 
@@ -79,7 +79,7 @@ public class Powerup : NetworkBehaviour
 
     private void _onPowerupPickedUp()
     {
-        OnPowerupPickedUp?.Invoke();
+        OnPowerupPickedUp?.Invoke(this);
         _networkAnim.SetTrigger("Sparkle");
         _spriteRenderer.enabled = false;
     }

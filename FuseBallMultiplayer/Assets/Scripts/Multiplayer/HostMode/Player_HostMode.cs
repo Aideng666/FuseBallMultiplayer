@@ -106,7 +106,7 @@ public class Player_HostMode : NetworkBehaviour
 
         var pressedButtons = input.Buttons.GetPressed(ButtonsPrevious);
         ButtonsPrevious = input.Buttons;
-
+        
         if (GameSetupComplete && !GameStarted && pressedButtons.IsSet(NetworkInputButtons.Strike))
         {
             IsReady = !IsReady;
@@ -382,11 +382,11 @@ public class Player_HostMode : NetworkBehaviour
 
                     if (IsDead)
                     {
+                        _networkAnim.SetTrigger("Death");
                         _networkAnim.Animator.SetBool("Right", false);
                         _networkAnim.Animator.SetBool("Left", false);
                         _networkAnim.Animator.SetBool("Up", false);
                         _networkAnim.Animator.SetBool("Down", false);
-                        _networkAnim.SetTrigger("Death");
                         OnPlayerDied?.Invoke(this);
                     }
 

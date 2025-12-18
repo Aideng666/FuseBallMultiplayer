@@ -13,11 +13,9 @@ public class HostModeSpawner : MonoBehaviour, INetworkRunnerCallbacks
 {
     [SerializeField] private NetworkPrefabRef player1Prefab;
     [SerializeField] private NetworkPrefabRef player2Prefab;
-    [SerializeField] private NetworkPrefabRef powerupPrefab;
     [SerializeField] private LobbyUI lobbyUI;
     [SerializeField] private HUDController hud;
-    [SerializeField] private List<Ball_HostMode> balls;
-    [SerializeField] private int powerupSpawnDelay;
+    [SerializeField] private GameManager_HostMode gameManager;
     
     private NetworkRunner _runner;
     private Dictionary<PlayerRef, NetworkObject> _spawnedPlayers = new Dictionary<PlayerRef, NetworkObject>();
@@ -37,7 +35,6 @@ public class HostModeSpawner : MonoBehaviour, INetworkRunnerCallbacks
     private void Awake()
     {
         lobbyUI.OnPlayerJoinedSession += _onPlayerConnected;
-        hud.OnGameStarted += _startGame;
         
         Player_HostMode.OnPlayerSpawned += _onPlayerSpawned;
         Player_HostMode.OnPlayerDespawned += _onPlayerDespawned;
@@ -46,33 +43,9 @@ public class HostModeSpawner : MonoBehaviour, INetworkRunnerCallbacks
     private void OnDestroy()
     {
         lobbyUI.OnPlayerJoinedSession -= _onPlayerConnected;
-        hud.OnGameStarted -= _startGame;
         
         Player_HostMode.OnPlayerSpawned -= _onPlayerSpawned;
         Player_HostMode.OnPlayerDespawned -= _onPlayerDespawned;
-    }
-
-    private void Update()
-    {
-        if (_gameStarted)
-        {
-            hud.UpdateFuses(_players.Find(p => p.PlayerNum == 1), _players.Find(p => p.PlayerNum == 2));
-
-            if (!_runner.IsServer)
-            {
-                return;
-            }
-            
-            if (!_powerOnField)
-            {
-                if (_canSpawnPowerup())
-                {
-                    _spawnPowerup();
-                }
-                
-                _elapsedPowerupSpawnDelay += Time.deltaTime;
-            }
-        }
     }
 
     async void StartLobby(GameMode mode, string sessionName)
@@ -115,158 +88,45 @@ public class HostModeSpawner : MonoBehaviour, INetworkRunnerCallbacks
         }
     }
 
-    private void _spawnPowerup()
-    {
-        print("Spawning Powerup");
-        bool positionValid = false;
-        Vector2 powerupPosition = Vector2.zero;
-
-        while (!positionValid)
-        {
-            powerupPosition = new Vector2(Random.Range(-14, 14), Random.Range(-5, 5));
-            
-            var closeColliders = Physics2D.OverlapCircleAll(powerupPosition, 4);
-            var playerTooClose = false;
-            
-            foreach (var collider in closeColliders)
-            {
-                var player = collider.GetComponentInParent<Player_HostMode>();
-
-                if (player != null)
-                {
-                    playerTooClose = true;
-                    break;
-                }
-            }
-            
-            if (!playerTooClose)
-            {
-                positionValid = true;
-            }
-        }
-
-        var spawnedPowerup = _runner.Spawn(powerupPrefab, powerupPosition, Quaternion.identity);
-        var powerup = spawnedPowerup.GetComponent<Powerup>();
-        powerup.OnPowerupPickedUp += _onPowerupPickedUp;
-
-        //var powerupType = Random.Range(1, 4);
-        //powerup.PowerupType = (PowerupType)powerupType;
-
-        _powerOnField = true;
-        _elapsedPowerupSpawnDelay = 0;
-    }
-
-    private bool _canSpawnPowerup()
-    {
-        if (_elapsedPowerupSpawnDelay >= powerupSpawnDelay)
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    private void _onPowerupPickedUp()
-    {
-        _powerOnField = false;
-    }
-
     private void _onPlayerSpawned(Player_HostMode spawnedPlayer)
     {
         _players.Add(spawnedPlayer);
 
-        spawnedPlayer.OnPlayerReadyChanged += _onPlayerReadyChanged;
-        spawnedPlayer.OnPlayerDied += _onPlayerDied;
-        
-        if (_players.Count == 2)
+        if (_runner.IsServer && _players.Count == 1)
+        {
+            spawnedPlayer.PlayerNum = 1;
+            gameManager.Player1 = spawnedPlayer;
+        }
+        else if (_players.Count == 2)
         {
             hud.gameObject.SetActive(true);
 
             if (_runner.IsServer)
             {
-                int playerNum = 1;
-                foreach (var player in _players)
-                {
-                    player.GameSetupComplete = true;
-                    player.PlayerNum = playerNum;
+                spawnedPlayer.PlayerNum = 2;
+                gameManager.Player2 = spawnedPlayer;
 
-                    playerNum++;
-                }
+                gameManager.Player1.GameSetupComplete = true;
+                gameManager.Player2.GameSetupComplete = true;
             }
         }
     }
     
     private void _onPlayerDespawned(Player_HostMode player)
     {
-        player.OnPlayerReadyChanged -= _onPlayerReadyChanged;
-        player.OnPlayerDied -= _onPlayerDied;
-        
         _players.Remove(player);
-    }
 
-    private void _onPlayerReadyChanged(Player_HostMode player)
-    {
-        int readyCount = _players.Count(p => p.IsReady);
-        
-        hud.UpdateReadyText(readyCount);
-
-        if (readyCount == _players.Count)
-        {
-            hud.PlayGameStartSequence();
-
-            if (_runner.IsServer)
-            {
-                foreach (var p in _players)
-                {
-                    p.ResetPlayer = true;
-                }
-
-                foreach (var ball in balls)
-                {
-                    ball.ResetBallPosition = true;
-                }
-            }
-        }
-    }
-
-    private void _onPlayerDied(Player_HostMode deadPlayer)
-    {
-        if (!_gameStarted)
-        {
-            return;
-        }
-
-        _gameStarted = false;
-        
-        if (deadPlayer.PlayerNum == 1)
-        {
-            hud.ShowGameOver(2);
-        }
-        else if (deadPlayer.PlayerNum == 2)
-        {
-            hud.ShowGameOver(1);
-        }
-        
         if (_runner.IsServer)
         {
-            foreach (var player in _players)
+            if (player.PlayerNum == 1)
             {
-                player.SetGameStarted(false);
+                gameManager.Player1 = null;
+            }
+            else if (player.PlayerNum == 2)
+            {
+                gameManager.Player2 = null;
             }
         }
-    }
-
-    private void _startGame()
-    {
-        if (_runner.IsServer)
-        {
-            foreach (var player in _players)
-            {
-                player.SetGameStarted(true);
-            }
-        }
-
-        _gameStarted = true;
     }
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
